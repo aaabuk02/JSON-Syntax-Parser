@@ -1,0 +1,135 @@
+using Final;
+using System.Collections.Generic;
+using ASTClass;
+using Sy;
+
+COMPILER DATA
+	public AST root;
+	//public SymbolTable tab;
+
+CHARACTERS
+
+	UpperLetter = 'A'..'Z'.
+	LowerLetter = 'a'..'z'.
+	letter = UpperLetter + LowerLetter.
+	nonzero = "123456789" .
+	zero = '0'.
+	cr     = '\r' .
+	lf     = '\n' .
+	tab    = '\t' .
+	space    = ' ' .
+	dquote = '"'.
+	escape = '\"'.
+	backslash = '\\'.
+	special = ':' + space + '!' + '@' + '#' + '$' + '%' + '^' + '&' + 
+		'*' + '(' + ')' + '-' + '+' + '[' + ']' + '~' + '`' + '_' + 
+		'?' + '<' + '>' + ',' + '.' + '|' + ':' + '\\' + '/' + '=' + 
+		';' + '\'' + '{' + '}'.
+	a = ANY - dquote.
+
+	
+TOKENS
+
+  number = ['-'] (zero | (nonzero {(nonzero | zero)}) ) 
+		   ['.' (zero | nonzero) {(nonzero | zero)} ] 
+		   [('E'|'e')['+'|'-'] (nonzero | zero) {(nonzero | zero)}]
+		 .
+  string = dquote {a | backslash '\"'} dquote.
+  bool = "true" | "false" .
+  null = "null".
+
+ 
+IGNORE cr + tab + lf
+
+PRODUCTIONS
+
+DATA						  			(. root = new AST(null,"DATA"); 
+										TerminalAST terminal = null;.)
+= 
+JSON<root> 			    
+. 
+
+JSON <AST parent>						(. AST nt = new AST(parent, "JSON"); 
+										TerminalAST terminal = null; .)
+ =						
+(
+	'{'									(. terminal = new TerminalAST(nt, "", t.val); .)
+	[Object<nt>]			
+	'}'									(. terminal = new TerminalAST(nt, "", t.val); .)
+|
+	Value<nt>
+)
+
+End <>
+ .
+
+Object <AST parent>						(. AST nt = new AST(parent, "Object"); 
+										TerminalAST terminal = null;.)
+ =
+							
+     string								(. StringAST str = new StringAST(nt);
+										str.SetValue (t.val); .)
+
+	 ":"								(. terminal = new TerminalAST(nt, "", t.val); .)
+
+	 Value<nt>
+{	
+
+		','								(. terminal = new TerminalAST(nt, "", ","); .)
+			Object<nt>
+
+
+}
+ .
+
+Value <AST parent>						(. AST nt = new AST(parent, "Value"); 
+										TerminalAST terminal = null;.)
+ =
+(
+	 number								(. NumberAST number = new NumberAST(nt);
+										number.Value = t.val;				.)		
+| 
+	string								(. StringAST str = new StringAST(nt);
+										str.SetValue (t.val); .)	
+| 
+	 bool								(. BoolAST b = new BoolAST(nt);
+										b.Value = (t.val); .)
+| 
+	 null								(. terminal = new TerminalAST(nt, "", "null"); .)
+| 
+	 Arr<nt> 
+|  
+	'{'									(. terminal = new TerminalAST(nt, "", t.val); .)
+	[Object<nt>]			
+	'}'									(. terminal = new TerminalAST(nt, "", t.val); .)
+) 
+	 
+ .
+
+ Arr<AST parent>						(. AST nt = new AST(parent, "Arr"); 
+										TerminalAST terminal = null;.)
+ =
+	'['									(. terminal = new TerminalAST(nt, "", t.val); .)
+
+[ 
+
+	Value<nt> 
+	
+	{
+		
+		','								(. terminal = new TerminalAST(nt, "", ","); .) 
+	
+		Value<nt>
+
+	} 
+
+] 	 
+
+	']'									(. terminal = new TerminalAST(nt, "", t.val); .)
+ .
+
+
+End<> =									
+.										
+
+END DATA. 

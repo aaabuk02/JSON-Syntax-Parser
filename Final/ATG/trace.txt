@@ -1,0 +1,106 @@
+
+First & follow symbols:
+----------------------
+
+DATA
+first:   number string bool null "{" "[" 
+follow:  EOF 
+
+JSON
+first:   number string bool null "{" "[" 
+follow:  EOF 
+
+Object
+first:   string 
+follow:  "}" "," 
+
+Value
+first:   number string bool null "{" "[" 
+follow:  EOF "}" "," "]" 
+
+End
+first:   -- empty set --
+follow:  EOF 
+
+Arr
+first:   "[" 
+follow:  EOF "}" "," "]" 
+
+
+---------- states ----------
+                 0: zero   2
+                    nonzero   8
+                    dquote   9
+                    '-'   1
+                    't'  11
+                    'f'  14
+                    'n'  19
+                    '{'  25
+                    '}'  26
+                    ':'  27
+                    ','  28
+                    '['  29
+                    ']'  30
+                 1: zero   2
+                    nonzero   8
+E(number      )  2: #B   3
+                    '.'   6
+                 3: #C   5
+                    #D   4
+                 4: #C   5
+E(number      )  5: #C   5
+                 6: #C   7
+E(number      )  7: #C   7
+                    #B   3
+E(number      )  8: #C   8
+                    #B   3
+                    '.'   6
+                 9: dquote  10
+                    #A   9
+                    backslash  23
+E(string      ) 10:
+                11: 'r'  12
+                12: 'u'  13
+                13: 'e'  18
+                14: 'a'  15
+                15: 'l'  16
+                16: 's'  17
+                17: 'e'  18
+E(bool        ) 18:
+                19: 'u'  20
+                20: 'l'  21
+                21: 'l'  22
+E(null        ) 22:
+                23: dquote  24
+                    #A   9
+                    backslash  23
+E(string      ) 24: dquote  10
+                    #A   9
+                    backslash  23
+E("{"         ) 25:
+E("}"         ) 26:
+E(":"         ) 27:
+E(","         ) 28:
+E("["         ) 29:
+E("]"         ) 30:
+
+---------- character classes ----------
+UpperLetter: 'A'..'Z' 
+LowerLetter: 'a'..'z' 
+letter    : 'A'..'Z' 'a'..'z' 
+nonzero   : '1'..'9' 
+zero      : '0' 
+cr        : 13 
+lf        : 10 
+tab       : 9 
+space     : ' ' 
+dquote    : '"' 
+escape    : '"' 
+backslash : 92 
+special   : ' '..'!' '#'..'/' ':'..'@' '['..'`' '{'..'~' 
+a         : 0..'!' '#'..65535 
+#A        : 0..'!' '#'..'[' ']'..65535 
+#B        : 'E' 'e' 
+#C        : '0'..'9' 
+#D        : '+' '-' 
+
