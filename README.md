@@ -1,6 +1,6 @@
 # JSON Syntax Parser
 
-Implementation of Coco/R in C# to scan and parse JSON data to validate it. As well as having the option to display the result in an abstract syntax tree using Graphviz/dot.
+Implementation of [Coco/R](https://ssw.jku.at/Research/Projects/Coco/) in C# to scan and parse JSON data to validate it. As well as having the option to display the result in an abstract syntax tree using Graphviz/dot.
 
 ## Installation
 
